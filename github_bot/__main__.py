@@ -23,6 +23,26 @@ async def on_issue_opened(
     )
 
 
+@process_event_actions('issue_comment', {'created'})
+@process_webhook_payload
+async def on_comment_posted(
+        *,
+        action, issue, comment,
+        repository=None, sender=None,
+        installation=None,
+        assignee=None, changes=None,
+):
+    github_api = RUNTIME_CONTEXT.app_installation_client
+    reactions_api_url = f'{comment["url"]}/reactions'
+    await github_api.post(
+        reactions_api_url,
+        preview_api_version='squirrel-girl',
+        data={
+            "content": "+1",
+        },
+    )
+
+
 if __name__ == "__main__":
     run_app(
         name='PyCon-Bot-by-webknjaz',
